@@ -1,20 +1,35 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { UsuarioService } from './usuario/usuario.service';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AutenticacaoService {
+  constructor(
+    private httpClient: HttpClient,
+    private usuarioService: UsuarioService
+  ) {}
 
-  constructor(private httpClient:HttpClient) { }
-
-  autenticar(usuario:string, senha:string):Observable<any>{
-    return this.httpClient.post('http://localhost:3000/user/login',{
-      userName: usuario,
-      password: senha
-    })
+  autenticar(usuario: string, senha: string): Observable<HttpResponse<any>> {
+    return this.httpClient
+      .post(
+        'http://localhost:3000/user/login',
+        {
+          userName: usuario,
+          password: senha,
+        },
+        { observe: 'response' }
+        //estamos falando pro angular que queremos alem do body o header da requisicao
+      )
+      .pipe(
+        tap((res) => {
+          const authToken = res.headers.get('x-access-token') ?? '';
+          this.usuarioService.salvaToken(authToken);
+        })
+      );
   }
 }
