@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { UsuarioService } from 'src/app/autenticacao/usuario/usuario.service';
@@ -12,20 +13,15 @@ import { AnimaisService } from '../animais.service';
 })
 export class ListaAnimaisComponent implements OnInit {
   //o !: é ppra dizer que nos nao vamos atribuir nada a ele agr, somente no ngOnInit
-  animais$ !: Observable<Animais>;
+  animais!: Animais;
 
-  constructor(
-    private usuarioService: UsuarioService,
-    private animaisService: AnimaisService
-  ) {}
+  constructor(private activatedRoute: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.animais$ = this.usuarioService.retornaUsuario().pipe(
-      switchMap((usuario)=>{
-        const userName = usuario.name ??  '';
-        return this.animaisService.listaDoUsuario(userName);
-      })
-    );
+    this.activatedRoute.params.subscribe((param) => {
+      this.animais = this.activatedRoute.snapshot.data['animais'];
+    });
+
     // this.usuarioService.retornaUsuario().subscribe((usuario) =>{
     //   //caso o userName for undefined ou nulo eu quero atribuir aspas simples(string)
     //   const userName = usuario.name ??  '';
