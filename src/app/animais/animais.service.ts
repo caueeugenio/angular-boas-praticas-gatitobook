@@ -4,7 +4,6 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, mapTo } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-import { TokenService } from './../autenticacao/token.service';
 import { Animais, Animal } from './animais';
 
 const API = environment.apiURL;
@@ -14,9 +13,7 @@ const NOT_MODIFED = '304';
   providedIn: 'root',
 })
 export class AnimaisService {
-  constructor(
-    private httpClient: HttpClient
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   listaDoUsuario(nomeDoUsuario: string): Observable<Animais> {
     // const token = this.tokenService.retornaToken();
@@ -47,4 +44,17 @@ export class AnimaisService {
         })
       );
   }
+
+  upload(descricao: string, permiteComentario: boolean, arquivo: File) {
+    const formData = new FormData();
+    formData.append('description', descricao);
+    formData.append('allowComments', permiteComentario ? 'true' : 'false');
+    formData.append('imageFile', arquivo);
+
+    return this.httpClient.post(`${API}/photos/upload`, formData, {
+      observe: 'events',
+      reportProgress: true
+    });
+  }
 }
+
